@@ -5,4 +5,5 @@ const (
 	DBUser     = "postgres"
 	DBPassword = "1234"
 	DBName     = "goauth"
+	ClientURL  = "http://localhost:3000"
 )
