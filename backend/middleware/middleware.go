@@ -1,6 +1,6 @@
-// Package middlewares contains gin middlewares
+// Package middleware contains gin middlewares
 // Usage: router.Use(middlewares.Connect)
-package middlewares
+package middleware
 
 import (
 	"net/http"
