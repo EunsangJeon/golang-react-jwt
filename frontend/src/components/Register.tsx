@@ -1,6 +1,7 @@
-import { useState, FC } from 'react';
-import { apiURL } from '../api';
 import { History } from 'history';
+import { useState, FC } from 'react';
+
+import { apiURL } from '../api';
 
 interface registerProps {
   history: History;

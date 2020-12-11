@@ -1,8 +1,9 @@
-import { FC, useState } from 'react';
 import { History } from 'history';
+import { FC, useState } from 'react';
+
 import { apiURL } from '../api';
-import { createCookie } from '../utils';
 import { User } from '../models/User';
+import { createCookie } from '../utils';
 
 interface loginProps {
   history: History;
