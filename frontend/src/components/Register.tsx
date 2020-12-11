@@ -17,7 +17,7 @@ interface handleChangeEvent {
 interface handleSubmitResponse {
   success: boolean;
   msg: string;
-  errors?: string[];
+  errors: string[];
 }
 
 export const Register: FC<registerProps> = ({ history }) => {

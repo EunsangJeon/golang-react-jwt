@@ -19,7 +19,7 @@ export const Session: FC<sessionProps> = ({ history }) => {
   const [state, setState] = useState({
     isFetching: false,
     message: '',
-    user: null as User,
+    user: {} as User,
   });
 
   const { isFetching, message, user } = state;
@@ -40,7 +40,7 @@ export const Session: FC<sessionProps> = ({ history }) => {
       if (!success) {
         history.push('/login');
       }
-      setState({ ...state, user, message: null, isFetching: false });
+      setState({ ...state, user, message: '', isFetching: false });
     } catch (e) {
       setState({ ...state, message: e.toString(), isFetching: false });
     }
