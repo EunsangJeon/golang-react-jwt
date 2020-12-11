@@ -38,6 +38,10 @@ export const Login: FC<loginProps> = ({ history }) => {
     await setState({ ...state, [name]: value });
   };
 
+  const toRegister = () => {
+    history.push({ pathname: '/register' });
+  };
+
   const handleSubmit = async () => {
     setState({ ...state, isSubmitting: true });
 
@@ -55,6 +59,8 @@ export const Login: FC<loginProps> = ({ history }) => {
       }).then((res) => res.json());
 
       const { token, success, msg, user } = res;
+
+      console.log(user);
 
       if (!success) {
         return setState({
@@ -101,6 +107,13 @@ export const Login: FC<loginProps> = ({ history }) => {
         {isSubmitting ? '.....' : 'login'}
       </button>
       <div className="message">{message}</div>
+      <button
+        onClick={() => {
+          toRegister();
+        }}
+      >
+        register
+      </button>
     </div>
   );
 };

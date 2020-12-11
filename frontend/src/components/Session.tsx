@@ -51,8 +51,11 @@ export const Session: FC<sessionProps> = ({ history }) => {
   };
 
   useEffect(() => {
+    if (history.location.state) {
+      return setState({ ...state, user: history.location.state as User });
+    }
     getUserInfo();
-  });
+  }, []);
 
   return (
     <div className="wrapper">
