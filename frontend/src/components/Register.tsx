@@ -1,10 +1,8 @@
-import { FC, useState } from 'react';
-import { History } from 'history';
+import { useState, FC } from 'react';
 import { apiURL } from '../api';
-import { createCookie } from '../utils';
-import { User } from '../models/User';
+import { History } from 'history';
 
-interface loginProps {
+interface registerProps {
   history: History;
 }
 
@@ -15,57 +13,56 @@ interface handleChangeEvent {
   };
 }
 
-interface loginResponse {
-  token: string;
+interface handleSubmitResponse {
   success: boolean;
   msg: string;
-  user: User;
+  errors?: string[];
 }
 
-export const Login: FC<loginProps> = ({ history }) => {
+export const Register: FC<registerProps> = ({ history }) => {
   const [state, setState] = useState({
     email: '',
     password: '',
+    name: '',
     isSubmitting: false,
     message: '',
+    errors: [''],
   });
 
-  const { email, password, isSubmitting, message } = state;
+  const { email, password, name, message, isSubmitting, errors } = state;
 
   const handleChange = async (event: handleChangeEvent) => {
-    const { name, value } = event.target;
-    await setState({ ...state, [name]: value });
+    await setState({ ...state, [event.target.name]: event.target.value });
   };
 
   const handleSubmit = async () => {
     setState({ ...state, isSubmitting: true });
 
-    const { email, password } = state;
+    const { email, password, name } = state;
     try {
-      const res: loginResponse = await fetch(`${apiURL}/login`, {
+      const res: handleSubmitResponse = await fetch(`${apiURL}/register`, {
         method: 'POST',
         body: JSON.stringify({
           email,
           password,
+          name,
         }),
         headers: {
           'Content-Type': 'application/json',
         },
       }).then((res) => res.json());
-
-      const { token, success, msg, user } = res;
+      const { success, msg, errors } = res;
 
       if (!success) {
         return setState({
           ...state,
           message: msg,
+          errors,
           isSubmitting: false,
         });
       }
-      // expire in 30 minutes(same time as the cookie is invalidated on the backend)
-      createCookie('token', token, 0.5);
 
-      history.push({ pathname: '/session', state: user });
+      history.push('/login');
     } catch (error) {
       setState({ ...state, message: error.toString(), isSubmitting: false });
     }
@@ -73,22 +70,31 @@ export const Login: FC<loginProps> = ({ history }) => {
 
   return (
     <div className="wrapper">
-      <h1>Login</h1>
+      <h1>Register</h1>
+      <input
+        className="input"
+        type="name"
+        placeholder="Name"
+        value={name}
+        name="name"
+        onChange={(event) => {
+          handleChange(event);
+        }}
+      />
       <input
         className="input"
         type="text"
-        placeholder="email"
+        placeholder="Email"
         value={email}
         name="email"
         onChange={(event) => {
           handleChange(event);
         }}
       />
-
       <input
         className="input"
         type="password"
-        placeholder="password"
+        placeholder="Password"
         value={password}
         name="password"
         onChange={(event) => {
@@ -97,9 +103,15 @@ export const Login: FC<loginProps> = ({ history }) => {
       />
 
       <button disabled={isSubmitting} onClick={() => handleSubmit()}>
-        {isSubmitting ? '.....' : 'login'}
+        {isSubmitting ? '.....' : 'Sign Up'}
       </button>
-      <div className="message">{message}</div>
+      <div className="message">{message && <p>&bull; {message}</p>}</div>
+      <div>
+        {errors &&
+          errors.map((error, id) => {
+            return <p key={id}> &bull; {error}</p>;
+          })}
+      </div>
     </div>
   );
 };
