@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 
 import './index.css';
-import App from './App';
+import { App } from './components';
 import reportWebVitals from './reportWebVitals';
 import { reducers } from './reducers';
 

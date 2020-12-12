@@ -1,7 +1,7 @@
 import { History } from 'history';
 import { useState, FC } from 'react';
 
-import { apiURL } from '../api';
+import { apiURL } from '../utils';
 
 interface registerProps {
   history: History;

@@ -1,9 +1,8 @@
 import { History } from 'history';
 import { useState, useEffect, FC } from 'react';
 
-import { apiURL } from '../api';
 import { User } from '../types';
-import { deleteCookie } from '../utils';
+import { apiURL, deleteCookie } from '../utils';
 
 interface sessionProps {
   history: History;
