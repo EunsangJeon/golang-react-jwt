@@ -16,7 +16,6 @@ func SetupRouter() *gin.Engine {
 	router.Use(middleware.CORSMiddleware())
 
 	// routes
-	router.GET("/ping", controller.Pong)
 	router.POST("/register", controller.Create)
 	router.POST("/login", controller.Login)
 	router.GET("/session", controller.Session)

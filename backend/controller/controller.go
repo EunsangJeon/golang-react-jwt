@@ -22,28 +22,6 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// Pong tests that API is working
-func Pong(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"ping": "pong"})
-}
-
-//Returns -1 as ID if the user doesnt exist in the table
-func checkAndRetrieveUserIDViaEmail(createReset db.CreateReset) (int, bool) {
-	rows, err := db.DB.Query(db.CheckUserExists, createReset.Email)
-	if err != nil {
-		return -1, false
-	}
-	if !rows.Next() {
-		return -1, false
-	}
-	var id int
-	err = rows.Scan(&id)
-	if err != nil {
-		return -1, false
-	}
-	return id, true
-}
-
 // Checks if user exists
 func checkUserExists(user db.Register) bool {
 	rows, err := db.DB.Query(db.CheckUserExists, user.Email)
