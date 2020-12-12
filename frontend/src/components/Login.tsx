@@ -2,7 +2,7 @@ import { History } from 'history';
 import { FC, useState } from 'react';
 
 import { apiURL } from '../api';
-import { User } from '../models/User';
+import { User } from '../types';
 import { createCookie } from '../utils';
 
 interface loginProps {

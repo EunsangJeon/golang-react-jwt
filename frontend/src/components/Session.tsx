@@ -2,7 +2,7 @@ import { History } from 'history';
 import { useState, useEffect, FC } from 'react';
 
 import { apiURL } from '../api';
-import { User } from '../models/User';
+import { User } from '../types';
 import { deleteCookie } from '../utils';
 
 interface sessionProps {
