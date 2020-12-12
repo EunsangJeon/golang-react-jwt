@@ -3,8 +3,8 @@ import { Dispatch } from 'redux';
 import { ActionTypes } from './actionTypes';
 import { User } from '../types';
 
-export interface FetchUserAction {
-  type: ActionTypes.fetchUser;
+export interface DeleteUserAction {
+  type: ActionTypes.deleteUser;
 }
 
 export interface UpdateUserAction {
@@ -12,10 +12,10 @@ export interface UpdateUserAction {
   payload: User;
 }
 
-export const fetchUser = () => {
+export const deleteUser = () => {
   return (dispatch: Dispatch) => {
-    dispatch<FetchUserAction>({
-      type: ActionTypes.fetchUser,
+    dispatch<DeleteUserAction>({
+      type: ActionTypes.deleteUser,
     });
   };
 };

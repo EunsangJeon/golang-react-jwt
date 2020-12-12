@@ -1,2 +1,4 @@
+import { DeleteUserAction, UpdateUserAction } from './userActions';
+
 export * from './actionTypes';
-export * from './userActions';
+export type Action = DeleteUserAction | UpdateUserAction;
