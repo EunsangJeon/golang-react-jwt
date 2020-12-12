@@ -9,7 +9,8 @@ export const createCookie = (
 };
 
 export const checkCookie = (name: string) => {
-  console.log(document.cookie);
+  console.log(name);
+  return document.cookie;
 };
 
 export const deleteCookie = (name: string) => {
