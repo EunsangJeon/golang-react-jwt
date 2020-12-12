@@ -1,9 +1,13 @@
 # golang-react-jwt
 Golang with jwt to support react frontend
+
 ## Powered by
+
 ### Backend
 - golang
 - gin
+- jwt
+
 ### Frontend
 - typescript
 - react
@@ -12,5 +16,6 @@ Golang with jwt to support react frontend
 - router
 - persist
 - cookie parser(todo)
+
 ## License
-MIT
+[MIT](https://choosealicense.com/licenses/mit/)
