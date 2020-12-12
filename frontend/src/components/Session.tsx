@@ -1,7 +1,6 @@
+import React, { FC, useState } from 'react';
 import { History } from 'history';
-import { FC, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Dispatch } from 'redux';
 
 import { deleteUser } from '../actions';
 import { User } from '../types';
@@ -12,7 +11,9 @@ interface sessionProps {
   history: History;
 }
 
-export const Session: FC<sessionProps> = ({ history }) => {
+export const Session: FC<sessionProps> = (props: sessionProps) => {
+  const { history } = props;
+
   const user = useSelector<StoreState, User>((state) => state.user);
   if (user.name === '') {
     history.push('/login');
@@ -20,7 +21,7 @@ export const Session: FC<sessionProps> = ({ history }) => {
 
   const [tokenInfo, setTokenInfo] = useState('');
 
-  const dispatch: Dispatch<any> = useDispatch();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
     deleteCookie('token');

@@ -1,5 +1,5 @@
+import React, { useState, FC } from 'react';
 import { History } from 'history';
-import { useState, FC } from 'react';
 
 import { apiURL } from '../utils';
 
@@ -20,7 +20,9 @@ interface handleSubmitResponse {
   errors: string[];
 }
 
-export const Register: FC<registerProps> = ({ history }) => {
+export const Register: FC<registerProps> = (props: registerProps) => {
+  const { history } = props;
+
   const [state, setState] = useState({
     email: '',
     password: '',

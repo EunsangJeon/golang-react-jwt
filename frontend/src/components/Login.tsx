@@ -1,7 +1,6 @@
 import { History } from 'history';
-import { FC, useState, useCallback } from 'react';
+import React, { FC, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { Dispatch } from 'redux';
 
 import { updateUser } from '../actions';
 import { apiURL, createCookie } from '../utils';
@@ -25,7 +24,9 @@ interface loginResponse {
   user: User;
 }
 
-export const Login: FC<loginProps> = ({ history }) => {
+export const Login: FC<loginProps> = (props: loginProps) => {
+  const { history } = props;
+
   const [state, setState] = useState({
     email: '',
     password: '',
@@ -35,7 +36,7 @@ export const Login: FC<loginProps> = ({ history }) => {
 
   const { email, password, isSubmitting, message } = state;
 
-  const dispatch: Dispatch<any> = useDispatch();
+  const dispatch = useDispatch();
 
   const updateUserCallback = useCallback(
     (user: User) => dispatch(updateUser(user)),

@@ -8,7 +8,10 @@ const initUserState: User = {
   updated_at: '',
 };
 
-export const userReducer = (state: User = initUserState, action: Action) => {
+export const userReducer = (
+  state: User = initUserState,
+  action: Action
+): User => {
   switch (action.type) {
     case ActionTypes.updateUser:
       return action.payload;

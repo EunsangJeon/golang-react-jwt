@@ -13,7 +13,7 @@ export interface UpdateUserAction {
 }
 
 export const deleteUser = () => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): void => {
     dispatch<DeleteUserAction>({
       type: ActionTypes.deleteUser,
     });
@@ -21,7 +21,7 @@ export const deleteUser = () => {
 };
 
 export const updateUser = (user: User) => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch): void => {
     dispatch<UpdateUserAction>({
       type: ActionTypes.updateUser,
       payload: user,

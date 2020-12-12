@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import '../styles/App.css';
