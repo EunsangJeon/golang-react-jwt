@@ -1,6 +1,16 @@
 # golang-react-jwt
 Golang with jwt to support react frontend
-### Refernce
-Github user IsraelAdura
-### License
+## Powered by
+### Backend
+- golang
+- gin
+### Frontend
+- typescript
+- react
+- redux
+- thunk(given as middleware so you can do async tasks in reducers)
+- router
+- persist
+- cookie parser(todo)
+## License
 MIT
