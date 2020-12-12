@@ -3,6 +3,6 @@
     "source.fixAll": true
   },
   "editor.formatOnSave": true,
-  "javascript.format.enable": false,
+  "javascript.format.enable": true,
   "typescript.tsdk": "node_modules/typescript/lib"
 }
