@@ -104,7 +104,7 @@ export const Register: FC<registerProps> = ({ history }) => {
       />
 
       <button disabled={isSubmitting} onClick={() => handleSubmit()}>
-        {isSubmitting ? '.....' : 'Sign Up'}
+        {isSubmitting ? '...' : 'Sign Up'}
       </button>
       <div className="message">{message && <p>&bull; {message}</p>}</div>
       <div>

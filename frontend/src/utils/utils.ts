@@ -1,11 +1,15 @@
 export const createCookie = (
   cookieName: string,
   cookieValue: string,
-  hourToExpire: number
+  minuteToExpire: number
 ) => {
   const date = new Date();
-  date.setTime(date.getTime() + hourToExpire * 60 * 60 * 1000);
+  date.setTime(date.getTime() + minuteToExpire * 60 * 1000);
   document.cookie = `${cookieName} = ${cookieValue}; expires = ${date.toUTCString()}`;
+};
+
+export const checkCookie = (name: string) => {
+  console.log(document.cookie);
 };
 
 export const deleteCookie = (name: string) => {

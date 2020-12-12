@@ -1,6 +1,9 @@
 import { History } from 'history';
-import { FC, useState } from 'react';
+import { FC, useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+import { Dispatch } from 'redux';
 
+import { updateUser } from '../actions';
 import { apiURL, createCookie } from '../utils';
 import { User } from '../types';
 
@@ -32,6 +35,13 @@ export const Login: FC<loginProps> = ({ history }) => {
 
   const { email, password, isSubmitting, message } = state;
 
+  const dispatch: Dispatch<any> = useDispatch();
+
+  const updateUserCallback = useCallback(
+    (user: User) => dispatch(updateUser(user)),
+    [dispatch]
+  );
+
   const handleChange = async (event: handleChangeEvent) => {
     const { name, value } = event.target;
     await setState({ ...state, [name]: value });
@@ -59,8 +69,6 @@ export const Login: FC<loginProps> = ({ history }) => {
 
       const { token, success, msg, user } = res;
 
-      console.log(user);
-
       if (!success) {
         return setState({
           ...state,
@@ -68,10 +76,12 @@ export const Login: FC<loginProps> = ({ history }) => {
           isSubmitting: false,
         });
       }
-      // expire in 30 minutes(same time as the cookie is invalidated on the backend)
+      // expire in 30 second(same time as the cookie is invalidated on the backend)
       createCookie('token', token, 0.5);
 
-      history.push({ pathname: '/session', state: user });
+      updateUserCallback(user);
+
+      history.push({ pathname: '/session' });
     } catch (error) {
       setState({ ...state, message: error.toString(), isSubmitting: false });
     }
@@ -102,17 +112,11 @@ export const Login: FC<loginProps> = ({ history }) => {
         }}
       />
 
-      <button disabled={isSubmitting} onClick={() => handleSubmit()}>
-        {isSubmitting ? '.....' : 'login'}
+      <button disabled={isSubmitting} onClick={handleSubmit}>
+        {isSubmitting ? '...' : 'login'}
       </button>
       <div className="message">{message}</div>
-      <button
-        onClick={() => {
-          toRegister();
-        }}
-      >
-        register
-      </button>
+      <button onClick={toRegister}>register</button>
     </div>
   );
 };
