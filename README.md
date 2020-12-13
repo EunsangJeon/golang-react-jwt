@@ -12,7 +12,7 @@ Golang with jwt to support react frontend
 - typescript
 - react
 - redux
-- thunk(given as middleware so you can do async tasks in reducers)
+- thunk
 - router
 - persist
 - cookie
