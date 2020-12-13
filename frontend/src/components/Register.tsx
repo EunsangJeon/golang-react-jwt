@@ -21,8 +21,6 @@ interface handleSubmitResponse {
 }
 
 export const Register: FC<registerProps> = (props: registerProps) => {
-  const { history } = props;
-
   const [state, setState] = useState({
     email: '',
     password: '',
@@ -31,7 +29,7 @@ export const Register: FC<registerProps> = (props: registerProps) => {
     message: '',
     errors: [''],
   });
-
+  const { history } = props;
   const { email, password, name, message, isSubmitting, errors } = state;
 
   const handleChange = async (event: handleChangeEvent) => {
@@ -42,6 +40,7 @@ export const Register: FC<registerProps> = (props: registerProps) => {
     setState({ ...state, isSubmitting: true });
 
     const { email, password, name } = state;
+
     try {
       const res: handleSubmitResponse = await fetch(`${apiURL}/register`, {
         method: 'POST',
@@ -54,6 +53,7 @@ export const Register: FC<registerProps> = (props: registerProps) => {
           'Content-Type': 'application/json',
         },
       }).then((res) => res.json());
+
       const { success, msg, errors } = res;
 
       if (!success) {
@@ -104,7 +104,6 @@ export const Register: FC<registerProps> = (props: registerProps) => {
           handleChange(event);
         }}
       />
-
       <button disabled={isSubmitting} onClick={() => handleSubmit()}>
         {isSubmitting ? '...' : 'Sign Up'}
       </button>

@@ -60,11 +60,11 @@ func Create(c *gin.Context) {
 func Session(c *gin.Context) {
 	user, isAuthenticated := AuthMiddleware(c, jwtKey)
 	if !isAuthenticated {
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "msg": "unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "user": nil, "msg": "unauthorized"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "user": user})
+	c.JSON(http.StatusOK, gin.H{"success": true, "user": user, "msg": "authorized"})
 }
 
 // Login controller
@@ -92,7 +92,7 @@ func Login(c *gin.Context) {
 	}
 
 	//expiration time of the token ->30 mins
-	expirationTime := time.Now().Add(30 * time.Second)
+	expirationTime := time.Now().Add(10 * time.Second)
 
 	// Create the JWT claims, which includes the User struct and expiry time
 	claims := &Claims{

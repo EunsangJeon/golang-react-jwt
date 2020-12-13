@@ -1,10 +1,11 @@
 import { History } from 'history';
 import React, { FC, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+import Cookies from 'universal-cookie';
 
 import { updateUser } from '../actions';
-import { apiURL, createCookie } from '../utils';
 import { User } from '../types';
+import { apiURL, SECOND } from '../utils';
 
 interface loginProps {
   history: History;
@@ -25,18 +26,16 @@ interface loginResponse {
 }
 
 export const Login: FC<loginProps> = (props: loginProps) => {
-  const { history } = props;
-
   const [state, setState] = useState({
     email: '',
     password: '',
     isSubmitting: false,
     message: '',
   });
-
+  const { history } = props;
   const { email, password, isSubmitting, message } = state;
-
   const dispatch = useDispatch();
+  const cookies = new Cookies();
 
   const updateUserCallback = useCallback(
     (user: User) => dispatch(updateUser(user)),
@@ -77,8 +76,11 @@ export const Login: FC<loginProps> = (props: loginProps) => {
           isSubmitting: false,
         });
       }
-      // expire in 30 second(same time as the cookie is invalidated on the backend)
-      createCookie('token', token, 0.5);
+      // expire in 10 second(same time as the cookie is invalidated on the backend)
+      cookies.set('token', token, {
+        path: '/',
+        expires: new Date(Date.now() + 10 * SECOND),
+      });
 
       updateUserCallback(user);
 

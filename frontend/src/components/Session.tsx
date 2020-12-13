@@ -1,59 +1,67 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import { History } from 'history';
 import { useSelector, useDispatch } from 'react-redux';
+import Cookies from 'universal-cookie';
 
-import { deleteUser } from '../actions';
+import { deleteUser, updateUser } from '../actions';
 import { User } from '../types';
 import { StoreState } from '../reducers';
-import { checkCookie, deleteCookie } from '../utils';
+import { apiURL } from '../utils';
 
 interface sessionProps {
   history: History;
 }
 
 export const Session: FC<sessionProps> = (props: sessionProps) => {
-  const { history } = props;
-
-  const user = useSelector<StoreState, User>((state) => state.user);
-  if (user.name === '') {
-    history.push('/login');
-  }
-
   const [tokenInfo, setTokenInfo] = useState('');
+  const [sessionInfo, setSessionInfo] = useState('');
 
   const dispatch = useDispatch();
+  const cookies = new Cookies();
+
+  const { history } = props;
+  const user = useSelector<StoreState, User>((state) => state.user);
+
+  const updateUserCallback = useCallback(
+    (user: User) => dispatch(updateUser(user)),
+    [dispatch]
+  );
 
   const handleLogout = () => {
-    deleteCookie('token');
+    cookies.remove('token');
     dispatch(deleteUser());
     history.push('/login');
   };
 
   const checkToken = () => {
-    setTokenInfo(checkCookie('token'));
+    setTokenInfo(cookies.get('token'));
   };
 
-  // const getUserInfo = async () => {
-  //   setState({ ...state, isFetching: true, message: 'fetching details...' })
-  //   try {
-  //     const res = await fetch(`${apiURl}/session`, {
-  //       method: 'GET',
-  //       credentials: 'include',
-  //       headers: {
-  //         Accept: 'application/json',
-  //         Authorization: document.cookie,
-  //       },
-  //     }).then(res => res.json())
+  const getUserInfo = useCallback(async () => {
+    try {
+      const res = await fetch(`${apiURL}/session`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+          Authorization: cookies.getAll(),
+        },
+      }).then((res) => res.json());
 
-  //     const { success, user } = res
-  //     if (!success) {
-  //       history.push('/login')
-  //     }
-  //     setState({ ...state, user, message: null, isFetching: false })
-  //   } catch (e) {
-  //     setState({ ...state, message: e.toString(), isFetching: false })
-  //   }
-  // }
+      const { success, user, msg } = res;
+      console.log(res);
+
+      if (!success) {
+        history.push('/login');
+      }
+
+      updateUserCallback(user);
+
+      setSessionInfo(msg);
+    } catch (e) {
+      setSessionInfo(e.toString());
+    }
+  }, []);
 
   return (
     <div className="wrapper">
@@ -61,9 +69,9 @@ export const Session: FC<sessionProps> = (props: sessionProps) => {
       {user && user.email}
       <button onClick={checkToken}>check token</button>
       <div className="tokenInfo">{tokenInfo}</div>
-      <button style={{ height: '30px' }} onClick={handleLogout}>
-        logout
-      </button>
+      <button onClick={getUserInfo}>check session to server</button>
+      <div className="sessionInfo">{sessionInfo}</div>
+      <button onClick={handleLogout}>logout</button>
     </div>
   );
 };
