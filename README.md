@@ -1,7 +1,7 @@
 # golang-react-jwt
-Golang with jwt to support react frontend
 
-## Powered By
+### Description
+Golang with jwt to support react frontend
 
 ### Backend
 - golang
