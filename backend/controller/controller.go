@@ -2,12 +2,12 @@ package controller
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/EunsangJeon/golang-react-jwt/backend/db"
-	"github.com/EunsangJeon/golang-react-jwt/backend/errors"
 	"github.com/EunsangJeon/golang-react-jwt/backend/util"
 
 	"github.com/dgrijalva/jwt-go"
@@ -22,38 +22,48 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// Checks if user exists
-func checkUserExists(user db.Register) bool {
-	rows, err := db.DB.Query(db.CheckUserExists, user.Email)
-	if err != nil {
-		return false
-	}
-	if !rows.Next() {
-		return false
-	}
-	return true
+// CreateResponse is type for create response
+type CreateResponse struct {
+	Success bool     `json:"success"`
+	Message string   `json:"msg"`
+	Errors  []string `json:"errors"`
 }
 
 // Create new user
-func Create(c *gin.Context) {
-	var user db.Register
-	c.Bind(&user)
-	exists := checkUserExists(user)
+func Create(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 
-	valErr := util.ValidateUser(user, errors.ValidationErrors)
-	if exists == true {
-		valErr = append(valErr, "email already exists")
+	var user db.Register
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Could not decode register body.", http.StatusInternalServerError)
+		return
 	}
+
+	valErr := util.ValidateUser(user)
 
 	fmt.Println(valErr)
 	if len(valErr) > 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"success": false, "errors": valErr})
+		res := map[string]interface{}{
+			"success": false,
+			"errors":  valErr,
+		}
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(res)
 		return
 	}
+
 	db.HashPassword(&user)
-	_, err := db.DB.Query(db.CreateUserQuery, user.Name, user.Password, user.Email)
-	errors.HandleErr(c, err)
-	c.JSON(http.StatusOK, gin.H{"success": true, "msg": "User created succesfully"})
+	_, err = db.DB.Query(db.CreateUserQuery, user.Name, user.Password, user.Email)
+	if err != nil {
+		http.Error(w, "Could not write new user to DB.", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	res := CreateResponse{Success: true, Message: "User created successfully", Errors: []string{}}
+	json.NewEncoder(w).Encode(res)
+	return
 }
 
 // Session returns JSON of user info
@@ -108,7 +118,6 @@ func Login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Create the JWT token string
 	tokenString, err := token.SignedString(jwtKey)
-	errors.HandleErr(c, err)
 	// c.SetCookie("token", tokenString, expirationTime, "", "*", true, false)
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:    "token",

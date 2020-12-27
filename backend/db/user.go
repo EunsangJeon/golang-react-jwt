@@ -21,7 +21,6 @@ type Login struct {
 
 //User struct
 type User struct {
-	//ID string
 	Password  string `json:"password"`
 	Email     string `json:"email"`
 	Name      string `json:"name"`
