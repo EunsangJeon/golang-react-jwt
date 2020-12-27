@@ -25,7 +25,7 @@ func main() {
 	log.Println("Server starts with port 8080")
 	log.Fatalln(
 		http.ListenAndServe(
-			":8080s",
+			":8080",
 			handlers.CORS(
 				handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
 				handlers.AllowedMethods([]string{"GET", "POST"}),

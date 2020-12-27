@@ -23,7 +23,7 @@ type Claims struct {
 }
 
 // CreateResponse is type for create response
-type CreateResponse struct {
+type createResponse struct {
 	Success bool     `json:"success"`
 	Message string   `json:"msg"`
 	Errors  []string `json:"errors"`
@@ -36,18 +36,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	var user db.Register
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Could not decode register body.", http.StatusInternalServerError)
+		http.Error(w, "Could not json decode from register body.", http.StatusInternalServerError)
 		return
 	}
 
 	valErr := util.ValidateUser(user)
-
-	fmt.Println(valErr)
 	if len(valErr) > 0 {
-		res := map[string]interface{}{
-			"success": false,
-			"errors":  valErr,
-		}
+		res := createResponse{Success: false, Message: "User creation failed", Errors: valErr}
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(res)
 		return
@@ -61,7 +56,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	res := CreateResponse{Success: true, Message: "User created successfully", Errors: []string{}}
+	res := createResponse{Success: true, Message: "User created successfully", Errors: []string{}}
 	json.NewEncoder(w).Encode(res)
 	return
 }
