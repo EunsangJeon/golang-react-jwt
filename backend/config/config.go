@@ -17,3 +17,6 @@ var DBName = os.Getenv("DB_NAME")
 // ClientURL is string from os environment variable.
 // It is frontend endpoint.
 var ClientURL = os.Getenv("CLIENT_URL")
+
+// JWTKey is key for JWT signiture.
+var JWTKey = "secret"

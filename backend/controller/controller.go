@@ -11,29 +11,37 @@ import (
 	"github.com/EunsangJeon/golang-react-jwt/backend/util"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 )
 
 var jwtKey = []byte("secret")
 
-// Claims jwt claims struct
-type Claims struct {
+type userClaims struct {
 	db.User
 	jwt.StandardClaims
 }
 
-// CreateResponse is type for create response
 type createResponse struct {
 	Success bool     `json:"success"`
 	Message string   `json:"msg"`
 	Errors  []string `json:"errors"`
 }
 
+type loginResponse struct {
+	Success bool    `json:"success"`
+	Message string  `json:"msg"`
+	User    db.User `json:"user"`
+	Token   string  `json:"token"`
+}
+
+type sessionResponse struct {
+	Success bool    `json:"success"`
+	Message string  `json:"msg"`
+	User    db.User `json:"user"`
+}
+
 // Create new user
 func Create(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	var user db.Register
+	user := db.Register{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, "Could not json decode from register body.", http.StatusInternalServerError)
@@ -42,9 +50,12 @@ func Create(w http.ResponseWriter, r *http.Request) {
 
 	valErr := util.ValidateUser(user)
 	if len(valErr) > 0 {
-		res := createResponse{Success: false, Message: "User creation failed", Errors: valErr}
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(res)
+		err = json.NewEncoder(w).Encode(createResponse{Success: false, Message: "User creation failed", Errors: valErr})
+		if err != nil {
+			http.Error(w, "Could not json encode to response", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -56,70 +67,110 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	res := createResponse{Success: true, Message: "User created successfully", Errors: []string{}}
-	json.NewEncoder(w).Encode(res)
+	err = json.NewEncoder(w).Encode(createResponse{Success: true, Message: "User created successfully", Errors: []string{}})
+	if err != nil {
+		http.Error(w, "Could not json encode to response", http.StatusInternalServerError)
+		return
+	}
 	return
 }
 
 // Session returns JSON of user info
-func Session(c *gin.Context) {
-	user, isAuthenticated := AuthMiddleware(c, jwtKey)
-	if !isAuthenticated {
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "user": nil, "msg": "unauthorized"})
+func Session(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("token")
+	if err != nil {
+		c = &http.Cookie{}
+	}
+
+	ss := c.Value
+	token, err := jwt.ParseWithClaims(
+		ss,
+		&userClaims{},
+		func(t *jwt.Token) (interface{}, error) {
+			if t.Method != jwt.SigningMethodHS256 {
+				return nil, fmt.Errorf("Cookie had not been signed with SHA256")
+			}
+
+			return jwtKey, nil
+		},
+	)
+	isValid := err == nil && token.Valid
+
+	if !isValid {
+		w.WriteHeader(http.StatusUnauthorized)
+		err = json.NewEncoder(w).Encode(sessionResponse{Success: false, User: db.User{}, Message: "Unauthenticated"})
+		if err != nil {
+			http.Error(w, "Error while json encoding", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "user": user, "msg": "authorized"})
+	claims := token.Claims.(*userClaims)
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(sessionResponse{Success: true, User: claims.User, Message: "Authenticated"})
+	if err != nil {
+		http.Error(w, "Error while json encoding", http.StatusInternalServerError)
+		return
+	}
+	return
 }
 
 // Login controller
-func Login(c *gin.Context) {
-	var user db.Login
-	c.Bind(&user)
+func Login(w http.ResponseWriter, r *http.Request) {
+	user := db.Login{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Could not json decode ogin request body.", http.StatusInternalServerError)
+		return
+	}
 
 	row := db.DB.QueryRow(db.LoginQuery, user.Email)
 
 	var id int
 	var name, email, password, createdAt, updatedAt string
 
-	err := row.Scan(&id, &name, &password, &email, &createdAt, &updatedAt)
-
-	if err == sql.ErrNoRows {
-		fmt.Println(sql.ErrNoRows, "err")
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "msg": "incorrect credentials"})
-		return
-	}
-
+	errorNoRows := row.Scan(&id, &name, &password, &email, &createdAt, &updatedAt)
 	match := db.CheckPasswordHash(user.Password, password)
-	if !match {
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "msg": "incorrect credentials"})
+
+	if errorNoRows == sql.ErrNoRows || !match {
+		w.WriteHeader(http.StatusUnauthorized)
+		err := json.NewEncoder(w).Encode(loginResponse{Success: false, Message: "incorrect credentials", User: db.User{}, Token: ""})
+		if err != nil {
+			http.Error(w, "Error while json encoding", http.StatusInternalServerError)
+		}
 		return
 	}
 
-	//expiration time of the token ->30 mins
 	expirationTime := time.Now().Add(10 * time.Second)
-
-	// Create the JWT claims, which includes the User struct and expiry time
-	claims := &Claims{
+	claims := &userClaims{
 		User: db.User{
 			Name: name, Email: email, CreatedAt: createdAt, UpdatedAt: updatedAt,
 		},
 		StandardClaims: jwt.StandardClaims{
-			//expiry time, expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// Create the JWT token string
-	tokenString, err := token.SignedString(jwtKey)
-	// c.SetCookie("token", tokenString, expirationTime, "", "*", true, false)
-	http.SetCookie(c.Writer, &http.Cookie{
+
+	signedString, err := token.SignedString(jwtKey)
+	if err != nil {
+		http.Error(w, "Could not getJWT", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
 		Name:    "token",
-		Value:   tokenString,
+		Value:   signedString,
 		Expires: expirationTime,
 	})
 
-	fmt.Println(tokenString)
-	c.JSON(http.StatusOK, gin.H{"success": true, "msg": "logged in succesfully", "user": claims.User, "token": tokenString})
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(loginResponse{Success: true, Message: "logged in succesfully", User: claims.User, Token: signedString})
+	if err != nil {
+		http.Error(w, "Error while json encoding", http.StatusInternalServerError)
+		return
+	}
+	return
 }

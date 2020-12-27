@@ -18,9 +18,9 @@ func init() {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/register", controller.Create).Methods(http.MethodPost, http.MethodOptions)
-	// r.HandleFunc("/login", controller.Login).Methods(http.MethodPost, http.MethodOptions)
-	// r.HandleFunc("/session", controller.Session).Methods(http.MethodGet, http.MethodOptions)
+	r.HandleFunc("/register", controller.Create).Methods(http.MethodPost)
+	r.HandleFunc("/login", controller.Login).Methods(http.MethodPost)
+	r.HandleFunc("/session", controller.Session).Methods(http.MethodGet)
 
 	log.Println("Server starts with port 8080")
 	log.Fatalln(
@@ -29,6 +29,7 @@ func main() {
 			handlers.CORS(
 				handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
 				handlers.AllowedMethods([]string{"GET", "POST"}),
+				handlers.AllowCredentials(),
 				handlers.AllowedOrigins([]string{config.ClientURL}),
 			)(r),
 		),
