@@ -107,11 +107,13 @@ export const Register: FC<registerProps> = (props: registerProps) => {
       <button disabled={isSubmitting} onClick={() => handleSubmit()}>
         {isSubmitting ? '...' : 'Sign Up'}
       </button>
-      <div className="message">{message && <p>&bull; {message}</p>}</div>
+      <div className="message">
+        <p>{message}</p>
+      </div>
       <div>
         {errors &&
           errors.map((error, id) => {
-            return <p key={id}> &bull; {error}</p>;
+            return <p key={id}>&bull; {error}</p>;
           })}
       </div>
     </div>
