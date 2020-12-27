@@ -1,12 +1,14 @@
 # golang-react-jwt
 
 ### Description
-Golang with jwt to support react frontend
+Go with jwt to support react frontend
 
 ### Backend
-- golang
-- gin
+- go
 - jwt
+- hmac
+- bcrypt
+- cookie
 
 ### Frontend
 - typescript
