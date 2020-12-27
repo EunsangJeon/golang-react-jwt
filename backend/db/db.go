@@ -17,11 +17,11 @@ func Connect() {
 
 	db, err := sql.Open("postgres", dbinfo)
 	if err != nil {
-		log.Fatal("Error: Could not open DB with config given")
+		log.Fatal("Error: Could not open DB with config given.")
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Fatal("Error: Could not establish a connection with DB")
+		log.Fatal("Error: Could not establish a connection with DB.")
 	}
 
 	DB = db

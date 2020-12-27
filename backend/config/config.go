@@ -1,9 +1,19 @@
 package config
 
-// These consts should be managed by secret management systems.
-const (
-	DBUser     = "postgres"
-	DBPassword = "1234"
-	DBName     = "goauth"
-	ClientURL  = "http://localhost:3000"
-)
+import "os"
+
+// DBUser is string from os environment variable.
+// It represents DB username.
+var DBUser = os.Getenv("DB_USERNAME")
+
+// DBPassword is string from os environment variable.
+// It represents DB password.
+var DBPassword = os.Getenv("DB_PASSWORD")
+
+// DBName is string from os environment variable.
+// It represents DB name.
+var DBName = os.Getenv("DB_NAME")
+
+// ClientURL is string from os environment variable.
+// It is frontend endpoint.
+var ClientURL = os.Getenv("CLIENT_URL")
