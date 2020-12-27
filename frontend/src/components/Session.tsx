@@ -37,7 +37,7 @@ export const Session: FC<sessionProps> = (props: sessionProps) => {
     setTokenInfo(cookies.get('token'));
   };
 
-  const getUserInfo = useCallback(async () => {
+  const getUserInfo = async () => {
     try {
       const res = await fetch(`${apiURL}/session`, {
         method: 'GET',
@@ -49,24 +49,23 @@ export const Session: FC<sessionProps> = (props: sessionProps) => {
       }).then((res) => res.json());
 
       const { success, user, msg } = res;
-      console.log(res);
+
+      updateUserCallback(user);
+      setSessionInfo(msg);
 
       if (!success) {
         history.push('/login');
       }
-
-      updateUserCallback(user);
-
-      setSessionInfo(msg);
     } catch (e) {
       setSessionInfo(e.toString());
     }
-  }, []);
+  };
 
   return (
     <div className="wrapper">
       <h1>Welcome, {user && user.name}</h1>
-      {user && user.email}
+      <h3>{user && `user email: ` + user.email}</h3>
+      <h3>{user && `user created at ` + user.created_at}</h3>
       <button onClick={checkToken}>check token</button>
       <div className="tokenInfo">{tokenInfo}</div>
       <button onClick={getUserInfo}>check session to server</button>
